@@ -5,22 +5,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrimerParcial.Models
 {
-    public class Articulos
+     public class Productos
     {
         [Key]
-        public int ArticuloId { get; set; }
+        public int ProductoId { get; set; }
+        [Required(ErrorMessage = "La descripción es obligatoria")]
         public string Descripcion { get; set; }
+        [Required(ErrorMessage = "La existencia es obligatoria")]
+        [Range(minimum:1,maximum:int.MaxValue,ErrorMessage = "La existencia debe ser mayor a 0")]
         public int Existencia { get; set; }
-        public int Costo { get; set; }
-        public int ValorInventario { get; set; }
+        [Required(ErrorMessage = "El costo es obligatorio")]
+        [Range(minimum:1,maximum:int.MaxValue,ErrorMessage = "El costo debe ser mayor a 0")]
+        public decimal Costo { get; set; }
+        public decimal ValorInventario { get; set; }
 
-        public Articulos()
-        {
-            ArticuloId = 0;
-            Descripcion = string.Empty;
-            Existencia = 0;
-            Costo = 0;
-            ValorInventario = 0;
-        }
     }
 }
