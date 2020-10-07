@@ -1,19 +1,15 @@
+using PrimerParcial.Models;
 using Microsoft.EntityFrameworkCore;
-using PrimerParcialBlazor.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PrimerParcialBlazor.DAL
-{
+
+ {
     public class Contexto : DbContext
     {
-        public DbSet<Articulos> Articulos { get; set; }
-
+        public DbSet<Productos> Productos { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(@"Data Source = Data\ProductosDB.db" );
+            optionsBuilder.UseSqlite(@"Data source= Data\Parcial.db");
         }
     }
 }
