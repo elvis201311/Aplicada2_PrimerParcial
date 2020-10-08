@@ -1,0 +1,180 @@
+@page "/cProductos"
+
+@inject IToastService toast
+
+<div class="card-img">
+        <div class="card-header">
+            <h1>Consulta de productos</h1>
+        </div>
+
+        <div class="card-body">
+                    <div class="form-group">
+                        <label>Filtro</label>
+                        <select class="form-control" @bind="Filtro">
+                            <option value="0">Todo</option>
+                            <option value="1">Producto Id</option>
+                            <option value="2">Descripción</option>
+                            <option value="3">Existencia</option>
+                            <option value="4">Costo</option>
+                            <option value="5">Valor Inventario</option>
+                        </select>
+                    </div>
+                    &nbsp;
+                    <div class="form-group">
+                        <label>Criterio</label>
+                        <div class="input-group">
+                            <input type="text" @bind="Criterio" class="form-control">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary input-group-text" @onclick="@(u => Consultar())"> Consultar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive text-nowrap" style="position: relative; height:200px; overflow: auto; display: block;">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Producto Id</th>
+                                <th>Descripción</th>
+                                <th>Existencia</th>
+                                <th>Costo</th>
+                                <th>Valor Inventario</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @foreach (var item in ListaProductos)
+                            {
+                                <tr>
+                                    <td>@item.ProductoId</td>
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.Existencia</td>
+                                    <td>@item.Costo</td>
+                                    <td>@item.ValorInventario</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            <label class="form-control">Monto Total: @MontoTotal</label>
+</div>
+
+@code {
+    public List<Productos> ListaProductos = new List<Productos>();
+
+    public string Filtro { get; set; }
+
+    public decimal MontoTotal { get; set; }
+
+    public string Criterio { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+    }
+
+    private void Nuevo()
+    {
+        ListaProductos = new List<Productos>();
+        Filtro = "0";
+        Criterio = string.Empty;
+    }
+
+    public void Consultar()
+    {
+        int id;
+        int.TryParse(Criterio,out id);
+
+        switch (Filtro)
+        {
+            case "0": //Todo
+                ListaProductos = ProductosBLL.GetList(c => true);
+                break;
+            case "1": 
+                if (Criterio.Trim().Length > 0)
+                {
+                    try
+                    {
+                        ListaProductos = ProductosBLL.GetList(c => c.ProductoId == id);
+                    }
+                    catch (FormatException)
+                    {
+                        toast.ShowWarning("Ingrese un número valido");
+                    }
+                }
+                else
+                {
+                    ListaProductos = ProductosBLL.GetList(c => true).OrderBy(c => c.ProductoId).ToList();
+                }
+                break;
+             case "2": //Descripcion
+                ListaProductos = ProductosBLL.GetList(a => a.Descripcion.Contains(Criterio));
+                break;
+            case "3": //Existencia
+                if(Criterio.Trim().Length > 0)
+                {
+                    try
+                    {
+                        int existencia = Convert.ToInt32(Criterio);
+                        ListaProductos = ProductosBLL.GetList(a => a.Existencia == existencia);
+                    }
+                    catch (FormatException)
+                    {
+                        toast.ShowWarning("Ingrese un numero");
+                    }
+                }
+                else
+                {
+                    ListaProductos = ProductosBLL.GetList(a => true).OrderBy(a => a.Existencia).ToList();
+                }
+                break;
+            case "4": //Costo
+                if(Criterio.Trim().Length > 0)
+                {
+                    try
+                    {
+                        decimal costo = Convert.ToInt32(Criterio);
+                        ListaProductos = ProductosBLL.GetList(a => a.Costo == costo);
+                    }
+                    catch (FormatException)
+                    {
+                        toast.ShowWarning("Ingrese un numero");
+                    }
+                }
+                else
+                {
+                    ListaProductos = ProductosBLL.GetList(a => true).OrderBy(a => a.Costo).ToList();
+                }
+                break;
+            case "5": //Valor Inventario
+                if(Criterio.Trim().Length > 0)
+                {
+                    try
+                    {
+                        decimal valorInventario = Convert.ToInt32(Criterio);
+                        ListaProductos = ProductosBLL.GetList(a => a.ValorInventario == valorInventario);
+                    }
+                    catch (FormatException)
+                    {
+                        toast.ShowWarning("Ingrese un número");
+                    }
+                }
+                else
+                {
+                    ListaProductos = ProductosBLL.GetList(a => true).OrderBy(a => a.ValorInventario).ToList();
+                }
+                break;
+        }
+        CalcularTotal();
+    }
+
+    private void CalcularTotal()
+    {
+        MontoTotal = 0;
+
+        foreach(var item in ListaProductos)
+        {
+            MontoTotal += item.ValorInventario;
+        }
+    }
+}
